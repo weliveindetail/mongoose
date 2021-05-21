@@ -56,7 +56,7 @@ fuzz: mongoose.c mongoose.h Makefile test/fuzz.c
 # make CLANG=/usr/local/opt/llvm\@8/bin/clang ASAN_OPTIONS=detect_leaks=1
 test: CFLAGS += -DMG_ENABLE_IPV6=$(IPV6) -fsanitize=address#,undefined
 test: mongoose.c mongoose.h  Makefile test/unit_test.c
-	$(CLANG) mongoose.c test/unit_test.c $(CFLAGS) -coverage $(LDFLAGS) -g -o unit_test
+	$(CLANG) mongoose.c test/unit_test.c test/unit_test_main.c $(CFLAGS) -coverage $(LDFLAGS) -g -o unit_test
 	ASAN_OPTIONS=$(ASAN_OPTIONS) $(DEBUGGER) ./unit_test
 
 coverage: test

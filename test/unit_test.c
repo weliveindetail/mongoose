@@ -2,13 +2,13 @@
 
 static int s_num_tests = 0;
 
-#define ASSERT(expr)                                            \
-  do {                                                          \
-    s_num_tests++;                                              \
-    if (!(expr)) {                                              \
-      printf("FAILURE %s:%d: %s\n", __FILE__, __LINE__, #expr); \
-      exit(EXIT_FAILURE);                                       \
-    }                                                           \
+#define ASSERT(expr)                                                     \
+  do {                                                                   \
+    s_num_tests++;                                                       \
+    if (!(expr)) {                                                       \
+      fprintf(stderr, "FAILURE %s:%d: %s\n", __FILE__, __LINE__, #expr); \
+      handle_assertion_failure();                                        \
+    }                                                                    \
   } while (0)
 
 #define FETCH_BUF_SIZE (256 * 1024)
@@ -1307,7 +1307,7 @@ static void test_multipart(void) {
   ASSERT(mg_http_next_multipart(mg_str(s), ofs, &part) == 0);
 }
 
-int main(void) {
+int unit_test_main() {
   mg_log_set("3");
   test_crc32();
   test_multipart();
