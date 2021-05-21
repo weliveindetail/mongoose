@@ -1245,7 +1245,7 @@ void mg_http_serve_dir(struct mg_connection *c, struct mg_http_message *hm,
     mg_url_decode(hm->uri.ptr, hm->uri.len, t1 + n1, sizeof(t1) - n1, 0);
     t1[sizeof(t1) - 1] = '\0';
     n2 = strlen(t1);
-    while (n2 > 0 && t1[n2 - 1] == '/') t1[--n2] = 0;
+    while (n2 > n1 && t1[n2 - 1] == '/') t1[--n2] = 0;
 
     if (realpath(t1, t2) == NULL) {
       LOG(LL_ERROR, ("realpath(%s): %d", t1, errno));
