@@ -1264,6 +1264,10 @@ void mg_http_serve_dir(struct mg_connection *c, struct mg_http_message *hm,
       // Requested file is located outside root directory, fail
       mg_http_reply(c, 404, "", "Invalid URI [%.*s]\n", (int) hm->uri.len,
                     hm->uri.ptr);
+    } else if (strpbrk(t2, "*#?") != NULL) {
+      // Requested path contains invalid characters
+      mg_http_reply(c, 404, "", "Invalid URI [%.*s]\n", (int) hm->uri.len,
+                    hm->uri.ptr);
     } else {
       FILE *fp = mg_fopen(t2, "r");
 #if MG_ENABLE_SSI
