@@ -32,7 +32,7 @@ CFLAGS += -DMG_ENABLE_OPENSSL=1 -I$(OPENSSL)/include
 LDFLAGS += -L$(OPENSSL)/lib -lssl -lcrypto
 endif
 
-all: mg_prefix test test++ ex vc98 vc2017 mingw mingw++ linux linux++ infer fuzz
+all: mg_prefix test test++ ex vc98 vc2017 mingw mingw++ linux linux++ infer fuzz test-libcfud
 
 ex:
 	@for X in $(EXAMPLES); do $(MAKE) -C $$X $(EXAMPLE_TARGET); done
@@ -58,6 +58,13 @@ test: CFLAGS += -DMG_ENABLE_IPV6=$(IPV6) -fsanitize=address#,undefined
 test: mongoose.c mongoose.h  Makefile test/unit_test.c
 	$(CLANG) mongoose.c test/unit_test.c test/unit_test_main.c $(CFLAGS) -coverage $(LDFLAGS) -g -o unit_test
 	ASAN_OPTIONS=$(ASAN_OPTIONS) $(DEBUGGER) ./unit_test
+
+test-libcfud: mongoose.c mongoose.h Makefile test/unit_test.c
+	$(CLANG) mongoose.c test/unit_test.c $(CFLAGS) $(LDFLAGS) /usr/local/lib/libcfud.a -lcfud-preload -fsanitize=fuzzer -g -o unit_test-cfud
+
+test-libcfud-run: test-libcfud Makefile
+	mkdir -p corpus && mkdir -p artifacts
+	LD_PRELOAD=/usr/local/lib/libcfud-preload.so $(DEBUGGER) ./unit_test-cfud -artifact_prefix=artifacts/ corpus > /dev/null
 
 coverage: test
 	gcov -l -n *.gcno | sed '/^$$/d' | sed 'N;s/\n/ /'
