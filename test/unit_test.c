@@ -356,6 +356,9 @@ static void eh1(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
     } else if (mg_http_match_uri(hm, "/test/")) {
       struct mg_http_serve_opts opts = {".", NULL, "A: B\r\nC: D\r\n"};
       mg_http_serve_dir(c, hm, &opts);
+    } else if (mg_http_match_uri(hm, "/")) {
+      struct mg_http_serve_opts opts = {".", NULL, NULL};
+      mg_http_serve_dir(c, hm, &opts);
     } else {
       struct mg_http_serve_opts opts = {"./test/data", "#.shtml", "C: D\r\n"};
       mg_http_serve_dir(c, hm, &opts);
@@ -540,6 +543,9 @@ static void test_http_server(void) {
   ASSERT(fetch(&mgr, buf, url, "GET /test/ HTTP/1.0\n\n") == 200);
   ASSERT(mg_strstr(mg_str(buf), mg_str(">Index of /test/<")) != NULL);
   ASSERT(mg_strstr(mg_str(buf), mg_str(">fuzz.c<")) != NULL);
+
+  // Listing for root directory
+  ASSERT(fetch(&mgr, buf, url, "GET / HTTP/1.0\n\n") == 200);
 
   {
     // Credentials
