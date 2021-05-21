@@ -1,0 +1,17 @@
+[
+  {
+    "directory": ".",
+    "command": "clang -fPIC -g -c fuzzdep.c",
+    "file": "fuzzdep.c"
+  },
+  {
+    "directory": ".",
+    "command": "clang mongoose.c -W -Wall -Werror -Isrc -I. -O0 -g -Wno-nullability-completeness -DMG_MAX_HTTP_HEADERS=5 -DMG_ENABLE_LINES -DMG_ENABLE_DIRECTORY_LISTING=1 -DMG_ENABLE_SSI=1   -DMG_ENABLE_MBEDTLS=1 -I//include -I/usr/include -fsanitize=fuzzer",
+    "file": "mongoose.c"
+  },
+  {
+    "directory": ".",
+    "command": "clang test/unit_test.c -W -Wall -Werror -Isrc -I. -O0 -g -Wno-nullability-completeness -DMG_MAX_HTTP_HEADERS=5 -DMG_ENABLE_LINES -DMG_ENABLE_DIRECTORY_LISTING=1 -DMG_ENABLE_SSI=1   -DMG_ENABLE_MBEDTLS=1 -I//include -I/usr/include -fsanitize=fuzzer",
+    "file": "test/unit_test.c"
+  }
+]

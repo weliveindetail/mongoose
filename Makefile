@@ -1,7 +1,7 @@
 SRCS = $(wildcard src/*.c)
 HDRS = $(wildcard src/*.h)
 DEFS ?= -DMG_MAX_HTTP_HEADERS=5 -DMG_ENABLE_LINES -DMG_ENABLE_DIRECTORY_LISTING=1 -DMG_ENABLE_SSI=1
-CFLAGS ?= -W -Wall -Werror -Isrc -I. -O0 -g $(DEFS) $(TFLAGS) $(EXTRA)
+CFLAGS ?= -W -Wall -Werror -Isrc -I. -O0 -g -Wno-nullability-completeness $(DEFS) $(TFLAGS) $(EXTRA)
 SSL ?= MBEDTLS
 CDIR ?= $(realpath $(CURDIR))
 VC98 = docker run --rm -e WINEDEBUG=-all -v $(CDIR):$(CDIR) -w $(CDIR) docker.io/mdashnet/vc98
@@ -9,26 +9,27 @@ VC2017 = docker run --rm -e WINEDEBUG=-all -v $(CDIR):$(CDIR) -w $(CDIR) docker.
 MINGW = docker run --rm -v $(CDIR):$(CDIR) -w $(CDIR) docker.io/mdashnet/mingw
 GCC = docker run --rm -v $(CDIR):$(CDIR) -w $(CDIR) mdashnet/cc2
 VCFLAGS = /nologo /W3 /O2 /I. $(DEFS) $(TFLAGS)
-CLANG ?= clang # /usr/local/opt/llvm\@9/bin/clang
+CLANG ?= clang-12 # /usr/local/opt/llvm\@9/bin/clang
 IPV6 ?= 1
-ASAN_OPTIONS ?=
 EXAMPLES := $(wildcard examples/*)
 EXAMPLE_TARGET ?= example
 .PHONY: ex test
 
 ifeq "$(SSL)" "MBEDTLS"
-MBEDTLS_DIR ?= $(shell brew --cellar mbedtls)
-MBEDTLS_VER ?= $(shell brew info mbedtls --json | jq -j .[0].installed[0].version)
+MBEDTLS_DIR ?= 
+#$(shell brew --cellar mbedtls)
+MBEDTLS_VER ?= 
+#$(shell brew info mbedtls --json | jq -j .[0].installed[0].version)
 MBEDTLS ?= $(MBEDTLS_DIR)/$(MBEDTLS_VER)
 CFLAGS += -DMG_ENABLE_MBEDTLS=1 -I$(MBEDTLS)/include -I/usr/include
-LDFLAGS ?= -L$(MBEDTLS)/lib -lmbedtls -lmbedcrypto -lmbedx509
+LDFLAGS += -L$(MBEDTLS)/lib -lmbedtls -lmbedcrypto -lmbedx509
 endif
 ifeq "$(SSL)" "OPENSSL"
-OPENSSL_DIR ?= $(shell brew --cellar openssl)
-OPENSSL_VER ?= $(shell brew info openssl --json | jq -j .[0].installed[0].version)
+#OPENSSL_DIR ?= $(shell brew --cellar openssl)
+#OPENSSL_VER ?= $(shell brew info openssl --json | jq -j .[0].installed[0].version)
 OPENSSL ?= $(OPENSSL_DIR)/$(OPENSSL_VER)
 CFLAGS += -DMG_ENABLE_OPENSSL=1 -I$(OPENSSL)/include
-LDFLAGS ?= -L$(OPENSSL)/lib -lssl -lcrypto
+LDFLAGS += -L$(OPENSSL)/lib -lssl -lcrypto
 endif
 
 all: mg_prefix test test++ ex vc98 vc2017 mingw mingw++ linux linux++ infer fuzz
@@ -87,7 +88,7 @@ mingw++: Makefile mongoose.c mongoose.h test/unit_test.c
   # Note: for some reason, a binary built with mingw g++, fails to run
 
 #linux: CFLAGS += -DMG_ENABLE_IPV6=$(IPV6)
-linux: CFLAGS += -fsanitize=address,undefined
+#linux: CFLAGS += -fsanitize=address,undefined
 linux: Makefile mongoose.c mongoose.h test/unit_test.c
 	$(GCC) $(CC) mongoose.c test/unit_test.c $(CFLAGS) $(LDFLAGS) -o unit_test_gcc
 	$(GCC) ./unit_test_gcc
